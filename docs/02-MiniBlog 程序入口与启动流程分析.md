@@ -131,4 +131,79 @@ func main() {
 | `options/`  | 命令行选项定义与验证   | pflag 绑定、分层验证设计         |
 | `server.go` | 服务生命周期管理       | Cobra 命令集成、UnionServer 模式 |
 
-未完待续
+#### 3.1.1 server 文件深度解析
+
+##### 函数分析
+
+###### 1. `NewMiniBlogCommand()` 函数
+
+**作用**：创建和配置 Cobra 命令行应用程序的根命令
+
+- 创建默认的服务器选项 (`options.NewServerOptions()`)
+- 配置命令基本信息（名称、描述等）
+- 设置命令行标志（flags）
+- 绑定配置文件初始化逻辑
+- 设置 `RunE` 回调函数指向 `run()` 函数
+
+###### 2. `run()` 函数
+
+**作用**：应用程序的主要执行逻辑
+
+- 处理版本信息显示
+- 初始化日志系统
+- 解析 Viper 配置到选项对象
+- 验证命令行选项
+- 加载应用配置
+- 创建联合服务器实例
+- 启动服务器
+
+###### 3. `logOptions()` 函数
+
+**作用**：从 Viper 配置中构建日志选项
+
+- 读取各种日志相关配置项
+- 构建并返回 `*log.Options` 对象
+- 支持的配置包括：调用者信息、堆栈跟踪、日志级别、格式、输出路径等
+
+##### 调用流程图
+
+graph TD
+
+    A[main.go 调用] --> B[NewMiniBlogCommand]
+    B --> C[创建 ServerOptions]
+    B --> D[配置 Cobra Command]
+    B --> E[设置 RunE 回调]
+    E --> F[run 函数]
+
+    F --> G[version.PrintAndExitIfRequested]
+    F --> H[log.Init]
+    H --> I[logOptions]
+    I --> J[从 Viper 读取日志配置]
+    J --> K[构建 log.Options]
+
+    F --> L[viper.Unmarshal]
+    L --> M[解析配置到 opts]
+
+    F --> N[opts.Validate]
+    N --> O[验证选项有效性]
+
+    F --> P[opts.Config]
+    P --> Q[获取应用配置]
+
+    F --> R[cfg.NewUnionServer]
+    R --> S[创建联合服务器]
+
+    F --> T[server.Run]
+    T --> U[启动服务器]
+
+    style A fill:#e1f5fe
+    style F fill:#f3e5f5
+    style I fill:#fff3e0
+    style T fill:#e8f5e8
+
+#### 关键设计模式
+
+- **命令模式**: 使用 Cobra 框架实现命令行接口
+- **配置分离**: 将命令行选项和应用配置分开处理，提高灵活性
+- **依赖注入**: 通过选项对象传递配置，便于测试和扩展
+- **错误处理**: 每个步骤都有完整的错误处理和上下文信息
