@@ -167,6 +167,7 @@ func main() {
 
 ##### 调用流程图
 
+```mermaid
 graph TD
     A[main.go 调用] --> B[NewMiniBlogCommand]
     B --> C[创建 ServerOptions]
@@ -199,6 +200,7 @@ graph TD
     style F fill:#f3e5f5
     style I fill:#fff3e0
     style T fill:#e8f5e8
+```
 
 #### 关键设计模式
 
