@@ -168,7 +168,6 @@ func main() {
 ##### 调用流程图
 
 graph TD
-
     A[main.go 调用] --> B[NewMiniBlogCommand]
     B --> C[创建 ServerOptions]
     B --> D[配置 Cobra Command]
